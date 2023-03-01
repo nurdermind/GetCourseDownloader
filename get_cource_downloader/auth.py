@@ -36,23 +36,6 @@ class Authentication:
             self._options.add_argument('--headless')
 
     def login(self, login: str = None, password: str = None, cookie_path='cookie.pkl'):
-        assert cookie_path or (login and password)
-
-        is_use_cookie_in_auth = cookie_path and not (login or password)
-
-        if is_use_cookie_in_auth:
-            try:
-                with open(cookie_path, 'rb') as file:
-                    cookies = pickle.load(file)
-                for cookie in cookies:
-                    self.driver.delete_cookie(cookie['name'])
-                    self.driver.add_cookie(cookie)
-                self.driver.refresh()
-                logger.info("Куки загружены из файла: {}".format(cookie_path))
-                return cookies
-            except FileNotFoundError as e:
-                logger.info(f"Файл куки не найден")
-                return None
 
         login_url = self.get_absolute_url('cms/system/login')
         self.driver.get(login_url)
