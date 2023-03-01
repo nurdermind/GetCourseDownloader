@@ -17,18 +17,22 @@ from .base import BaseVideo
 
 class VimeoVideo(BaseVideo):
 
+    def __init__(self, title, iframe_url, lesson_url, *args, **kwargs):
+        super().__init__(title, iframe_url, lesson_url)
+        self.vimeo_video = Vimeo(self.iframe_url, self.lesson_url)
+        self.config = self.vimeo_video._extractor()
+
     @staticmethod
     def is_this_that_engine(iframe_url):
         return 'player.vimeo' in iframe_url
 
     @property
     def video_url(self):
-        vimeo_video = Vimeo(self.iframe_url, self.lesson_url)
-        if vimeo_video.streams:
-            progressive_max_quality = int(re.match(r'(\d+)p', vimeo_video.best_stream.quality).group(1))
+        if self.vimeo_video.streams:
+            progressive_max_quality = int(re.match(r'(\d+)p', self.vimeo_video.best_stream.quality).group(1))
             segments_max_quality = max(self._get_5vod_data()['video'], key=lambda x: x['height'])['height']
             if progressive_max_quality >= segments_max_quality:
-                return vimeo_video.best_stream.direct_url
+                return self.vimeo_video.best_stream.direct_url
         return None
 
     def download(self, output_file=None):
@@ -102,7 +106,8 @@ class VimeoVideo(BaseVideo):
     def _get_avc_url(self):
         vimeo_video = Vimeo(self.iframe_url, self.lesson_url)
         config = vimeo_video._extractor()
-        return config['request']['files']['dash']['cdns']['akfire_interconnect_quic']['avc_url']
+        cdn = config['request']['files']['dash']['default_cdn']
+        return config['request']['files']['dash']['cdns'][cdn]['url']
 
     def _get_5vod_data(self):
         avc_url = self._get_avc_url()
