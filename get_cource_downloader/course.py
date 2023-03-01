@@ -14,7 +14,10 @@ class Course(WebSession):
             section.download(output_dir)
 
     def get_sections(self):
-        sections = [Section(url=self.url, cookie_path=self.cookie_path)]
+        sections = []
+        root_as_section = Section(url=self.url, cookie_path=self.cookie_path)
+        if root_as_section.get_lessons():
+            sections.append(root_as_section)
         sections_html = self.html.find_all('a', href=lambda href: href and '/teach/control/stream' in href)
         for section_html in sections_html:
             section_url = self._get_absolute_url(section_html.get('href'))

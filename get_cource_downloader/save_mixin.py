@@ -5,6 +5,7 @@ class SaveMixin:
 
     @staticmethod
     def _get_output_dir_path(output_path, title=None):
+        assert output_path or title
         if not output_path:
             output_path = title
         else:

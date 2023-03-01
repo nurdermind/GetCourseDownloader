@@ -7,9 +7,13 @@ from .video_engine import engines
 class Lesson(WebSession):
 
     def download(self, output_dir=None):
-        for video in self.get_videos():
+        output_dir = output_dir or self.title
+        for i, video in enumerate(self.get_videos()):
             self._create_output_path(output_dir)
-            output_file = os.path.join(output_dir, self.title + '.mp4')
+            if i > 0:
+                output_file = os.path.join(output_dir, self.title + f'_{i}.mp4')
+            else:
+                output_file = os.path.join(output_dir, self.title + '.mp4')
             video.download(output_file)
 
     def get_videos(self):

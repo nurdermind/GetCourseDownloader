@@ -15,8 +15,12 @@ class BaseVideo(ABC):
     def download(self, output_file=None):
         if output_file is None:
             output_file = self.title + '.mp4'
+        self._download(self.video_url, output_file)
+        return output_file
 
-        with requests.get(self.video_url, stream=True) as response:
+    @staticmethod
+    def _download(url, output_file):
+        with requests.get(url, stream=True) as response:
             if response.status_code == 200:
                 with open(output_file, 'wb') as f:
                     total_size = int(response.headers.get('Content-Length'))
@@ -26,7 +30,7 @@ class BaseVideo(ABC):
                             f.write(chunk)
                             pbar.update(len(chunk))
             else:
-                logger.error(f'{response.status_code} - {self.video_url}')
+                logger.error(f'{response.status_code} - {url}')
 
         return output_file
 
